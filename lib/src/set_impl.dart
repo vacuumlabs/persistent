@@ -131,7 +131,7 @@ class _TransientSetImpl<E> extends _SetImplBase<E> implements TransientSet {
   }
   
   TransientSet asTransient() {
-    return this.asPersistent().asTransient();
+    return this;
   }
   
   
