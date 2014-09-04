@@ -83,8 +83,8 @@ class _PersistentSetImpl<E> extends _SetImplBase<E> implements PersistentSet {
   _PersistentSetImpl<E> insert(E element) =>
       new _PersistentSetImpl._internal(_map.insert(element, null));
 
-  _PersistentSetImpl<E> delete(E element, {bool safe:false}) =>
-      new _PersistentSetImpl._internal(_map.delete(element, safe:safe));
+  _PersistentSetImpl<E> delete(E element) =>
+      new _PersistentSetImpl._internal(_map.delete(element, safe:true));
   
   TransientSet asTransient() {
     return new _TransientSetImpl._internal(_map.asTransient());
@@ -122,8 +122,8 @@ class _TransientSetImpl<E> extends _SetImplBase<E> implements TransientSet {
     _map.doInsert(element, null);
   }
 
-  void doDelete(E element, {bool safe:false}){
-    _map.doDelete(element, safe:safe);
+  void doDelete(E element){
+    _map.doDelete(element, safe:true);
   }
 
   PersistentSet asPersistent() {
