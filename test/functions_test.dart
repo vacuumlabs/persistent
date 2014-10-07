@@ -18,28 +18,6 @@ eqPer(x) => equals(persist(x));
 run() {
   group("conj", (){
 
-    solo_test('pop', () {
-
-   popcount(int n) {
-      n = n - ((n >> 1) & 0x55555555);
-      n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
-      n = (n + (n >> 4)) & 0x0F0F0F0F;
-      n = n + (n >> 8);
-      n = n + (n >> 16);
-    return n & 0x0000003F;
-
-   }
-   print(popcount(0));
-   print(popcount(1));
-   print(popcount(2));
-   print(popcount(3));
-   print(popcount(4));
-   print(popcount(5));
-   print(popcount(6));
-   print(popcount(0xf8642));
-
-    });
-
     test("- PersistentVector", (){
       PersistentVector s = persist([1, 2, 3]);
       expect(conj(s, 5), equals(s.push(5)));
