@@ -33,8 +33,8 @@ _firstP(p) => (p is Pair)? p.fst : p.first;
 _secondP(p) => (p is Pair)? p.snd : p.last;
 
 /**
- * Return new collection with its result of inserting element to persistent
- * collection([PersistentMap]/[PersistentSet]/[PersistentVector]).
+ * Returns new collection which is result of inserting elements to persistent
+ * [coll] ([PersistentMap]/[PersistentSet]/[PersistentVector]).
  * Accepts up to 9 positional elements in one call. If you need to insert
  * more elements, call [into] with [List] of elements.
  * When conjing to map as element use [List] of length 2 or [Pair].
@@ -42,12 +42,12 @@ _secondP(p) => (p is Pair)? p.snd : p.last;
  * Inserting element to [PersistentMap] with existing key will overwrite that key.
  *
  * Examples:
- *      PersistantMap pm = new PersistantMap();
- *      conj(pm, new Pair(['a', 6])); // == persist({'a': 6});
- *      conj(pm, ['a', 8], ['b', 10]); // == persist({'a': 8, 'b': 10})
- *
  *      PersistentVector pv = persist([1, 2])
  *      conj(pv, 3, 4, 5); // == persist([1, 2, 3, 4, 5])
+ *
+ *      PersistantMap pm = new PersistantMap();
+ *      conj(pm, ['a', 8]); // == persist({'a': 8})
+ *      conj(pm, new Pair(['a', 6]), ['b', 10]); // == persist({'a': 6, 'b': 10});
  */
 Persistent conj(Persistent coll, arg0, [arg1 = _undefArg, arg2 = _undefArg, arg3 = _undefArg, arg4 = _undefArg, arg5 = _undefArg, arg6 = _undefArg, arg7 = _undefArg, arg8 = _undefArg, arg9 = _undefArg]) {
   var varArgs = [arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9].where((x) => x != _undefArg);
@@ -74,7 +74,7 @@ Persistent conj(Persistent coll, arg0, [arg1 = _undefArg, arg2 = _undefArg, arg3
  */
 Persistent into(Persistent coll, Iterable iter) {
   return _dispach(coll,
-     op: 'conj',
+     op: 'into',
      map:()=>  (coll as PersistentMap).withTransient((TransientMap t) => iter.forEach((arg) => t.doInsert(_firstP(arg), _secondP(arg)))),
      vec:()=>  (coll as PersistentVector).withTransient((t) => iter.forEach((arg) => t.doPush(arg))),
      set:()=>  (coll as PersistentSet).withTransient((t) => iter.forEach((arg) => t.doInsert(arg)))
@@ -90,7 +90,7 @@ Persistent into(Persistent coll, Iterable iter) {
  *      assoc(pm, 'a', 5, 'b', 6); // == persist({'a': 5, 'b': 6})
  *
  *      PersistentVector p = persist([1, 2, 3]);
- *      assoc(pm, 0, 7, 2, 8, 0, 10); // == persist([10, 2, 8])
+ *      assoc(pm, 0, 'a', 2, 'b', 0, 'c'); // == persist(['c', 2, 'b'])
  */
 Persistent assoc(Persistent coll, key0, val0, [
                                   key1 = _undefArg, val1 = _undefArg,
@@ -113,7 +113,8 @@ Persistent assoc(Persistent coll, key0, val0, [
                  [key7,val7],
                  [key8,val8],
                  [key9,val9]];
-  argsAll.forEach((a) => (a[0] != _undefArg && a[1] ==_undefArg)? throw new ArgumentError("Key is specified but value is not") : null);
+  argsAll.forEach((a) => (a[0] != _undefArg && a[1] ==_undefArg)?
+      throw new ArgumentError("Even number of keys and values is required") : null);
   var varArgs = argsAll.where((x) => x[0]!= _undefArg && x[1] != _undefArg);
   return assocI(coll, varArgs);
 }
@@ -128,7 +129,7 @@ Persistent assoc(Persistent coll, key0, val0, [
  *      assoc(pm1, [['a', 5], new Pair('b', 6)]); // == persist({'a': 5, 'b': 6})
  *
  *      PersistentVector pm2 = persist([1, 2, 3]);
- *      assoc(pm2, [[0, 7], [2, 8], [0, 10]]); // == persist([10, 2, 8])
+ *      assoc(pm2, [[0, 'a'], [2, 'b'], [0, 'c']]); // == persist(['c', 2, 'b'])
  */
 Persistent assocI(Persistent coll, Iterable iter) {
   return _dispach(coll,
