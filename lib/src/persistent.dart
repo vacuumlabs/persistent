@@ -187,3 +187,85 @@ Persistent _deleteIn(s, Iterator path, {bool safe: false}) {
   }
   return throw 'It cant get here...';
 }
+
+abstract class DumpNode {
+
+  factory DumpNode(_ANodeBase node) => new _DumpNodeImpl(node);
+
+  operator[](int key);
+
+  get numNodes;
+
+  get values;
+
+  get isLeaf;
+
+  isIdenticalTo(DumpNode other);
+
+}
+
+class _DumpNodeImpl implements DumpNode {
+  _ANodeBase node;
+
+  factory _DumpNodeImpl(_ANodeBase node) => new _DumpNodeImpl.fromNode(node);
+
+  _DumpNodeImpl.fromNode(_ANodeBase this.node);
+
+  get numNodes {
+    if ((node is _EmptyMap) || (node is _Leaf)) return 0;
+    assert(node is _SubMap);
+    return _SubMap._popcount((node as _SubMap)._bitmap);
+  }
+
+  _DumpNodeImpl operator [](int key) {
+    if (numNodes == 0) throw new Exception("There are no nodes");
+    assert(node is _SubMap);
+    if ((key >= numNodes) || (key < 0)) throw new RangeError.range(key, 0, numNodes-1);
+    return new _DumpNodeImpl((node as _SubMap)._array[key]);
+  }
+
+  get values {
+    if ((node is _EmptyMap) || (node is _SubMap)) throw new Exception("${node.runtimeType} has no values");
+    assert(node is _Leaf);
+    return (node as _Leaf)._pairs.map((f) => f.second == null ? f.first : "<${f.first},${f.second}>");
+  }
+
+  get isLeaf => node is _Leaf;
+
+  isIdenticalTo(_DumpNodeImpl other) => identical(node, other.node);
+}
+
+class DumpNum {
+
+  int _hash;
+  dynamic value;
+
+  DumpNum(this.value, [hash = null]) {
+    if (hash == null) _hash = value;
+    else _hash = hash;
+  }
+
+  @override
+  get hashCode => _hash;
+
+  set hashCode(int h) => _hash = hashCode;
+
+  toString() => "$value";
+
+}
+
+testDumpStructure(_ANodeBase _node) {
+
+  dump(DumpNode node) {
+    if (node.isLeaf) return node.values;
+    Map structure = {};
+    for (int i = 0; i < node.numNodes; i++) {
+      structure[i] = dump(node[i]);
+    }
+    return structure;
+  }
+
+  return dump(new DumpNode(_node));
+
+}
+

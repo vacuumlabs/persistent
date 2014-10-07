@@ -14,6 +14,61 @@ main() {
 }
 
 run() {
+
+  group('Structure test', () {
+    test('Simple structure', () {
+      PersistentMap pm = new PersistentMap();
+      d(int i) => new DumpNum(i);
+      pm = pm.assoc(0,0);
+      pm = pm.assoc(1,1);
+      pm = pm.assoc(32,32);
+      pm = pm.assoc(2,2);
+      pm = pm.assoc(3,3);
+      pm = pm.assoc(35,35);
+      TransientMap tm = pm.asTransient();
+
+      tm.doAssoc(2,10);
+
+      DumpNode nodeTm = new DumpNode(tm.test_get_root);
+      DumpNode nodePm = new DumpNode(pm.test_get_root);
+
+      expect(nodeTm[0].isIdenticalTo(nodePm[0]), isTrue);
+      expect(nodeTm[1].isIdenticalTo(nodePm[1]), isTrue);
+      // 2 should be new
+      expect(nodeTm[2].isIdenticalTo(nodePm[2]), isFalse);
+      expect(nodeTm[3].isIdenticalTo(nodePm[3]), isTrue);
+
+      tm.doAssoc(2,15);
+      // Transient root shouldn't change now
+      expect(nodeTm.isIdenticalTo(new DumpNode(tm.test_get_root)), isTrue);
+
+      // Persistent root should change and copy references
+      pm = pm.assoc(2,10);
+      expect(nodePm.isIdenticalTo(new DumpNode(pm.test_get_root)), isFalse);
+
+    });
+
+    test('More complicated insert', () {
+      PersistentMap pm = new PersistentMap.fromMap({0:0,1:1,2:2,32:32,35:35,3:3,1059:1059});
+      DumpNode psNode = new DumpNode(pm.test_get_root);
+      TransientMap tm = pm.asTransient();
+       // No changes yet, should be identical
+      expect(new DumpNode(tm.test_get_root).isIdenticalTo(psNode), isTrue);
+      tm.doAssoc(1315,1315);
+      DumpNode tsNode = new DumpNode(tm.test_get_root);
+       // Transient root should be copied
+      expect(tsNode.isIdenticalTo(psNode), isFalse);
+      expect(tsNode[0].isIdenticalTo(psNode[0]), isTrue);
+      expect(tsNode[1].isIdenticalTo(psNode[1]), isTrue);
+      expect(tsNode[2].isIdenticalTo(psNode[2]), isTrue);
+      // Node on 3rd branch should be copied
+      expect(tsNode[3].isIdenticalTo(psNode[3]), isFalse);
+      expect(tsNode[3][0].isIdenticalTo(psNode[3][0]), isTrue);
+      expect(tsNode[3][1].isIdenticalTo(psNode[3][1]), isTrue);
+
+    });
+  });
+
   group('Persistent map', () {
     test('assoc', () {
       PersistentMap pm = new PersistentMap();

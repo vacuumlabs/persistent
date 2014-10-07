@@ -10,12 +10,14 @@ import 'set_test.dart' as set_test;
 import 'vector_test.dart' as vector_test;
 import 'randomized_map_test.dart' as randomized_map_test;
 import 'randomized_vector_test.dart' as randomized_vector_test;
+import 'functions_test.dart' as functions_test;
 
 main() {
   linked_list_test.run();
   map_test.run();
   set_test.run();
   vector_test.run();
+  functions_test.run();
   randomized_map_test.run();
   randomized_vector_test.run();
 }

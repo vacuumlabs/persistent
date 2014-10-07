@@ -20,6 +20,8 @@ abstract class ReadSet<E> implements Iterable<E> {
    * If it contains given [element], it is returned. Otherwise returns [notFound]
    */
   E get(E element, [E notFound]);
+
+  get test_get_root;
 }
 
 /**
