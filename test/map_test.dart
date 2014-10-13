@@ -18,9 +18,7 @@ run() {
   group('Structure test', () {
     test('Simple structure', () {
       PersistentMap pm = new PersistentMap();
-      d(int i) => new DumpNum(i);
       pm = pm.assoc(0,0);
-      pm = pm.assoc(1,1);
       pm = pm.assoc(32,32);
       pm = pm.assoc(2,2);
       pm = pm.assoc(3,3);
@@ -33,7 +31,6 @@ run() {
       DumpNode nodePm = new DumpNode(pm.test_get_root);
 
       expect(nodeTm[0].isIdenticalTo(nodePm[0]), isTrue);
-      expect(nodeTm[1].isIdenticalTo(nodePm[1]), isTrue);
       // 2 should be new
       expect(nodeTm[2].isIdenticalTo(nodePm[2]), isFalse);
       expect(nodeTm[3].isIdenticalTo(nodePm[3]), isTrue);
@@ -45,7 +42,6 @@ run() {
       // Persistent root should change and copy references
       pm = pm.assoc(2,10);
       expect(nodePm.isIdenticalTo(new DumpNode(pm.test_get_root)), isFalse);
-
     });
 
     test('More complicated insert', () {

@@ -204,6 +204,17 @@ abstract class DumpNode {
 
 }
 
+class NilNode implements DumpNode {
+
+  _throw() => throw new Exception("Non-existent node");
+
+  operator[](int key) => _throw();
+  get numNodes => _throw();
+  get values => _throw();
+  get isLeaf => _throw();
+  isIdenticalTo(DumpNode other) => _throw();
+}
+
 class _DumpNodeImpl implements DumpNode {
   _ANodeBase node;
 
@@ -217,11 +228,11 @@ class _DumpNodeImpl implements DumpNode {
     return _SubMap._popcount((node as _SubMap)._bitmap);
   }
 
-  _DumpNodeImpl operator [](int key) {
-    if (numNodes == 0) throw new Exception("There are no nodes");
-    assert(node is _SubMap);
-    if ((key >= numNodes) || (key < 0)) throw new RangeError.range(key, 0, numNodes-1);
-    return new _DumpNodeImpl((node as _SubMap)._array[key]);
+  DumpNode operator [](int key) {
+    if ((key < 0) || (key > 31)) throw new RangeError.range(key, 0, 31);
+    if ((node as _SubMap)._bitmap & (1 << key) == 0) return new NilNode();
+    int compressedIndex = _SubMap._popcount((node as _SubMap)._bitmap & ((1 << key) - 1));
+    return new DumpNode((node as _SubMap)._array[compressedIndex]);
   }
 
   get values {
@@ -259,8 +270,8 @@ testDumpStructure(_ANodeBase _node) {
   dump(DumpNode node) {
     if (node.isLeaf) return node.values;
     Map structure = {};
-    for (int i = 0; i < node.numNodes; i++) {
-      structure[i] = dump(node[i]);
+    for (int i = 0; i < 32; i++) {
+      if (node[i] is! NilNode) structure[i] = dump(node[i]);
     }
     return structure;
   }
