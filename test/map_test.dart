@@ -27,8 +27,8 @@ run() {
 
       tm.doAssoc(2,10);
 
-      DumpNode nodeTm = new DumpNode(tm.test_get_root);
-      DumpNode nodePm = new DumpNode(pm.test_get_root);
+      DumpNodeMap nodeTm = new DumpNodeMap(tm.getRootForTesting);
+      DumpNodeMap nodePm = new DumpNodeMap(pm.getRootForTesting);
 
       expect(nodeTm[0].isIdenticalTo(nodePm[0]), isTrue);
       // 2 should be new
@@ -37,21 +37,21 @@ run() {
 
       tm.doAssoc(2,15);
       // Transient root shouldn't change now
-      expect(nodeTm.isIdenticalTo(new DumpNode(tm.test_get_root)), isTrue);
+      expect(nodeTm.isIdenticalTo(new DumpNodeMap(tm.getRootForTesting)), isTrue);
 
       // Persistent root should change and copy references
       pm = pm.assoc(2,10);
-      expect(nodePm.isIdenticalTo(new DumpNode(pm.test_get_root)), isFalse);
+      expect(nodePm.isIdenticalTo(new DumpNodeMap(pm.getRootForTesting)), isFalse);
     });
 
     test('More complicated insert', () {
       PersistentMap pm = new PersistentMap.fromMap({0:0,1:1,2:2,32:32,35:35,3:3,1059:1059});
-      DumpNode psNode = new DumpNode(pm.test_get_root);
+      DumpNodeMap psNode = new DumpNodeMap(pm.getRootForTesting);
       TransientMap tm = pm.asTransient();
        // No changes yet, should be identical
-      expect(new DumpNode(tm.test_get_root).isIdenticalTo(psNode), isTrue);
+      expect(new DumpNodeMap(tm.getRootForTesting).isIdenticalTo(psNode), isTrue);
       tm.doAssoc(1315,1315);
-      DumpNode tsNode = new DumpNode(tm.test_get_root);
+      DumpNodeMap tsNode = new DumpNodeMap(tm.getRootForTesting);
        // Transient root should be copied
       expect(tsNode.isIdenticalTo(psNode), isFalse);
       expect(tsNode[0].isIdenticalTo(psNode[0]), isTrue);

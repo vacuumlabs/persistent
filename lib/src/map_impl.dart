@@ -61,7 +61,7 @@ abstract class _ReadMapImpl<K, V> extends IterableBase<Pair<K, V>> {
 
   bool hasKey(key) => containsKey(key);
 
-  get test_get_root => _root;
+  get getRootForTesting => _root;
 }
 
 class _PersistentMapImpl<K, V>

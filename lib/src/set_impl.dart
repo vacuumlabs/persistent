@@ -97,7 +97,6 @@ abstract class _SetImplBase<E> extends _ReadSetBase<E> {
   // PersistentMap's "elementAt" is optimized
   E elementAt(int index) => _map.elementAt(index).first;
 
-  get test_get_root => _map.test_get_root;
 }
 
 

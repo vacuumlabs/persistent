@@ -19,6 +19,21 @@ run() {
 
     PV(list) => new PersistentVector.from(list);
 
+    solo_test('dump vector', () {
+      PersistentVector v = PV(new Iterable.generate(5000,(a) => a*2));
+      prettyPrint(Map m, [ident = 0]) {
+        String identstr = ident == 0 ? "" : new Iterable.generate(ident, (a) => " ").reduce((a,b) => a+b);
+        String toPrint = "";
+        m.forEach((key, val) {
+          toPrint += "$identstr$key : ";
+          if (val is Map) toPrint += "\n" + prettyPrint(val, ident+2);
+          else toPrint += "$val, \n";
+        });
+        return toPrint;
+      }
+      print(prettyPrint(testDumpVector(v.getRootForTesting)));
+    });
+
     test('get', () {
       PersistentVector v = PV([0, 1, 2]);
       expect(v.get(0), equals(0));

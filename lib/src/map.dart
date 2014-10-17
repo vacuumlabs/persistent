@@ -63,7 +63,7 @@ abstract class ReadMap<K, V> implements Iterable<Pair<K, V>> {
   /// The number of entries of `this`.
   int get length;
 
-  get test_get_root;
+  get getRootForTesting;
 
 }
 

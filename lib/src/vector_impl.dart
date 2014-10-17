@@ -40,6 +40,8 @@ abstract class _BaseVectorImpl<E> extends _PersistentVectorBase<E> {
   int _level;
   bool __altered = false;
 
+  get getRootForTesting => _root;
+
   _BaseVectorImpl._prototype() {
     this._owner = null;
     this._root = new _VNode([], _owner);
@@ -322,6 +324,7 @@ class _VNode {
       if (node != null && node._array.length > idx) {
         lowerNode = node._array[idx];
       } else {
+        // TODO Can this ever happen ?
         lowerNode = null;
       }
       var newLowerNode = lowerNode._update(ownerID, level - _SHIFT, index, value, didAlter);

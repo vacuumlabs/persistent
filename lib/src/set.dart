@@ -21,7 +21,6 @@ abstract class ReadSet<E> implements Iterable<E> {
    */
   E get(E element, [E notFound]);
 
-  get test_get_root;
 }
 
 /**
