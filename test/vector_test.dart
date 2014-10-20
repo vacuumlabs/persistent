@@ -19,8 +19,8 @@ run() {
 
     PV(list) => new PersistentVector.from(list);
 
-    solo_test('dump vector', () {
-      PersistentVector v = PV(new Iterable.generate(5000,(a) => a*2));
+    test('dump vector', () {
+      PersistentVector v = PV(new Iterable.generate(10000,(a) => a));
       prettyPrint(Map m, [ident = 0]) {
         String identstr = ident == 0 ? "" : new Iterable.generate(ident, (a) => " ").reduce((a,b) => a+b);
         String toPrint = "";
@@ -31,7 +31,27 @@ run() {
         });
         return toPrint;
       }
-      print(prettyPrint(testDumpVector(v.getRootForTesting)));
+      PersistentVector newV = v.set(1060, "new value");
+      // 1060 should be on leg path (1, 1, 4)
+
+      DumpNodeVector dV = new DumpNodeVector(v.getRootForTesting);
+      DumpNodeVector dNewV = new DumpNodeVector(newV.getRootForTesting);
+
+      // Should be new node
+      expect(dNewV.isIdenticalTo(dV), isFalse);
+
+      // d1 shares all legs with d2 except legNum
+      sharedLegsExcept(DumpNodeVector d1, DumpNodeVector d2, int legNum) {
+        for (int i = 0; i < d1.numNodes; i++) {
+          expect(d1[i].isIdenticalTo(d2[i]), i == legNum ? isFalse : isTrue);
+        }
+      }
+      print(prettyPrint(testDumpVector(newV.getRootForTesting)));
+
+      sharedLegsExcept(dV, dNewV, 1);
+      sharedLegsExcept(dV[1], dNewV[1], 1);
+      sharedLegsExcept(dV[1][1], dNewV[1][1], 4);
+
     });
 
     test('get', () {

@@ -41,6 +41,7 @@ abstract class _BaseVectorImpl<E> extends _PersistentVectorBase<E> {
   bool __altered = false;
 
   get getRootForTesting => _root;
+  get getTailForTesting => _tail;
 
   _BaseVectorImpl._prototype() {
     this._owner = null;
@@ -104,6 +105,7 @@ abstract class _BaseVectorImpl<E> extends _PersistentVectorBase<E> {
     return this._resize(this.length-1);
   }
 
+  /// Returns largest number, smaller than size, divisible by 2^_SHIFT
   int _getTailOffset(int size) {
     return size < _SIZE ? 0 : (((size - 1) >> _SHIFT) << _SHIFT);
   }

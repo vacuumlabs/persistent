@@ -48,6 +48,7 @@ abstract class ReadVector<E> implements Iterable<E>, Persistent {
   bool hasKey(int key);
 
   get getRootForTesting;
+  get getTailForTesting;
 }
 
 

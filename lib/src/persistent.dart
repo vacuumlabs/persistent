@@ -294,7 +294,14 @@ testDumpVector(_VNode _node) {
 
 }
 
-abstract class DumpNodeVector {
+abstract class DumpNodeVectorGeneral {
+
+  isIdenticalTo(DumpNodeVectorGeneral other);
+
+  get data;
+}
+
+abstract class DumpNodeVector implements DumpNodeVectorGeneral{
 
   factory DumpNodeVector(_VNode node) => new _DumpNodeVectorImpl(node);
 
@@ -306,13 +313,27 @@ abstract class DumpNodeVector {
 
 }
 
+class _DumpNodeVectorData implements DumpNodeVectorGeneral {
+
+  var _data;
+  get data => _data;
+
+  _DumpNodeVectorData(this._data);
+
+  isIdenticalTo(DumpNodeVectorGeneral other) => other is DumpNodeVector ? false : identical(data, other.data);
+
+  toString() => "$_data";
+}
+
 class _DumpNodeVectorImpl implements DumpNodeVector {
 
   _VNode node;
+  get data => node;
 
   _DumpNodeVectorImpl(this.node);
 
-  operator[](int key) => node._array[key] is _VNode ? new _DumpNodeVectorImpl(node._array[key]) : node._array[key];
+  operator[](int key) => node._array[key] is _VNode ? new _DumpNodeVectorImpl(node._array[key])
+      : new _DumpNodeVectorData(node._array[key]);
 
   get numNodes => node._array.length;
 
