@@ -6,16 +6,6 @@
 
 part of persistent;
 
-//---- Collection Operations ----
-// just for testing purpouse
-final PersistentMap em = new PersistentMap();
-final PersistentVector ev = new PersistentVector();
-final PersistentSet es = new PersistentSet();
-
-final TransientMap emt = em.asTransient();
-final TransientVector evt = ev.asTransient();
-final TransientSet est = es.asTransient();
-
 _dispatch(x, {op:"operation", map, vec, set}) {
   if (x is PersistentMap) {
     if (map != null) return map();
@@ -47,7 +37,7 @@ _secondP(p) => (p is Pair)? p.second : p.last;
  *      conj(pm, ['a', 8]); // == persist({'a': 8});
  *      conj(pm, new Pair(['a', 6]), ['b', 10]); // == persist({'a': 6, 'b': 10})
  */
-Persistent conj(Persistent coll, arg0, [arg1 = _none, arg2 = _none, arg3 = _none, arg4 = _none, arg5 = _none, arg6 = _none, arg7 = _none, arg8 = _none, arg9 = _none]) {
+PersistentCollection conj(PersistentCollection coll, arg0, [arg1 = _none, arg2 = _none, arg3 = _none, arg4 = _none, arg5 = _none, arg6 = _none, arg7 = _none, arg8 = _none, arg9 = _none]) {
   var varArgs = [arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9].where((x) => x != _none);
   return into(coll, varArgs);
 }
@@ -70,7 +60,7 @@ Persistent conj(Persistent coll, arg0, [arg1 = _none, arg2 = _none, arg3 = _none
  *      PersistentSet perSet = new PersistentSet();
  *      into(perSet, [1,2,1,3,2]); // == persist(new Set.from([1, 2, 3]))
  */
-Persistent into(Persistent coll, Iterable iter) {
+PersistentCollection into(PersistentCollection coll, Iterable iter) {
   return _dispatch(coll,
      op: 'into',
      map:()=>  (coll as PersistentMap).withTransient((TransientMap t) => iter.forEach((arg) => t.doAssoc(_firstP(arg), _secondP(arg)))),
@@ -80,7 +70,7 @@ Persistent into(Persistent coll, Iterable iter) {
 }
 /**
  * Returns a new collection which is the result of inserting new keys and values
- * into indexed peristent [coll] ([PersistentMap]/[PersistentVector]).
+ * into [PersistentIndexedCollection] [coll] ([PersistentMap]/[PersistentVector]).
  * Accepts up to 9 key:value positional arguments. If you need more arguments use [assocI] with [Iterable].
  *
  * Example:
@@ -90,7 +80,7 @@ Persistent into(Persistent coll, Iterable iter) {
  *      PersistentVector p = persist([1, 2, 3]);
  *      assoc(pm, 0, 'a', 2, 'b', 0, 'c'); // == persist(['c', 2, 'b'])
  */
-Persistent assoc(Persistent coll, key0, val0, [
+PersistentCollection assoc(PersistentIndexedCollection coll, key0, val0, [
                                   key1 = _none, val1 = _none,
                                   key2 = _none, val2 = _none,
                                   key3 = _none, val3 = _none,
@@ -119,7 +109,7 @@ Persistent assoc(Persistent coll, key0, val0, [
 
 /**
  * Returns a new collection which is the result of adding all elements of [iter]
- * into indexed peristent [coll] ([PersistentMap]/[PersistentVector]).
+ * into [PersistentIndexedCollection] [coll] ([PersistentMap]/[PersistentVector]).
  * Elements of [iter] should be [Pair] or [List] with 2 arguments.
  *
  * Example:
@@ -129,7 +119,7 @@ Persistent assoc(Persistent coll, key0, val0, [
  *      PersistentVector pm2 = persist([1, 2, 3]);
  *      assoc(pm2, [[0, 'a'], [2, 'b'], [0, 'c']]); // == persist(['c', 2, 'b'])
  */
-Persistent assocI(Persistent coll, Iterable iter) {
+PersistentCollection assocI(PersistentIndexedCollection coll, Iterable iter) {
   return _dispatch(coll,
      op: 'assocI',
      map:()=> into(coll, iter),
@@ -138,30 +128,63 @@ Persistent assocI(Persistent coll, Iterable iter) {
 }
 
 /**
- * Returns a new [PersistentMap] which is the result of removing keys from persistent [coll] ([PersistentMap]).
- * Accepts up to 9 key:value positional arguments. If you need more arguments use [dissocI] with [Iterable].
+ * Returns a new [PersistentCollection] which is the result of removing keys from
+ * persistent [coll] ([PersistentMap]/[PersistentSet]/[PersistentVector]).
+ * Accepts up to 9 key:value positional arguments.
+ * If you need more arguments use [dissocI] with [Iterable].
+ *
+ * Removing not existing key do nothing.
  *
  * Example:
  *      PersistentMap p = persist({'a': 10, 'b':15, 'c': 17});
  *      dissoc(p, 'c', 'b'); // == persist({'a': 10})
  *      dissoc(p, 'a'); // == persist({'b': 15, 'c': 17})
+ *
+ *      PersistentSet p = persist(['a', 'b', 'c']);
+ *      dissoc(p, 'c', 'b'); // == persist(['a'])
+ *      dissoc(p, 'a'); // == persist(['b', 'c'])
  */
-PersistentMap dissoc(PersistentMap coll, arg0, [arg1 = _none, arg2 = _none, arg3 = _none, arg4 = _none, arg5 = _none, arg6 = _none, arg7 = _none, arg8 = _none, arg9 = _none]) {
+PersistentCollection dissoc(PersistentCollection coll, arg0, [arg1 = _none, arg2 = _none, arg3 = _none, arg4 = _none, arg5 = _none, arg6 = _none, arg7 = _none, arg8 = _none, arg9 = _none]) {
   var varArgs = [arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9].where((x) => x != _none);
   return dissocI(coll, varArgs);
 }
 
 /**
- * Returns a new [PersistentMap] which is the result of removing all keys in [iter] from persistent [coll] ([PersistentMap]).
+ * Returns a new [Persistent] collection which is the result of removing all
+ * keys in [iter] from persistent [coll]
+ * ([PersistentMap]/[PersistentSet]/[PersistentVector]).
  *
  * Example:
  *      PersistentMap p = persist({'a': 10, 'b':15, 'c': 17});
  *      dissocI(p, ['c', 'b']); // == persist({'a': 10})
  *      dissocI(p, ['a']); // == persist({'b': 15, 'c': 17})
+*
+ *      PersistentSet p = persist(['a', 'b', 'c', 'd']);
+ *      dissocI(p, ['a', 'b']); // == persist(['c', 'd'])
+ *
+ *      PersistentVector p = persist(['a', 'b', 'c', 'd']);
+ *      dissocI(p, [0, 2]); // == persist(['b', 'd'])
+ *
  */
-PersistentMap dissocI(PersistentMap coll, Iterable iter){
-  return coll.withTransient((TransientMap t) => iter.forEach((arg) => t.doDelete(arg, allowMissing: true)));
+PersistentCollection dissocI(PersistentCollection coll, Iterable iter){
+  return _dispatch(coll,
+     op: 'dissocI',
+     map:()=> (coll as PersistentMap).withTransient((TransientMap t) =>
+         iter.forEach((arg) => t.doDelete(arg, missingOk: true))),
+     vec:()=> _dissocFromVector(coll as PersistentVector, iter),
+     set:()=> (coll as PersistentSet).withTransient((TransientSet t) =>
+         iter.forEach((arg) => t.doDelete(arg, missingOk: true)))
+  );
 }
+
+//TODO implement doDelete from Vector more effective
+PersistentVector _dissocFromVector(PersistentVector pv, Iterable indexes) {
+  var r = [];
+  var indexesSet = indexes.toSet();
+  for(int i =0;i< pv.length;i++) (!indexesSet.contains(i))? r.add(pv[i]) : null;
+  return per(r);
+}
+
 
 /**
  * Returns a new [PersistentVector] which is the result of removing duplicate elements inside [iter].
@@ -191,7 +214,7 @@ PersistentVector distinct(Iterable iter) {
  *      PersistentMap pv = persist({'a': 10, 'b': 11});
  *      empty(pv); // == persist({})
  */
-Persistent empty(Persistent coll) {
+PersistentCollection empty(PersistentCollection coll) {
   return _dispatch(coll,
      op: 'empty',
      map:()=> new PersistentMap(),
@@ -220,7 +243,7 @@ Persistent empty(Persistent coll) {
  *      hasKey(pm, 'a'); // == true
  *      hasKey(pm, 'c'); // == false
  */
-bool hasKey(Persistent coll, key) {
+bool hasKey(PersistentCollection coll, key) {
   return _dispatch(coll,
     op: 'hasKey',
     map:()=> (coll as PersistentMap).containsKey(key),
@@ -254,7 +277,7 @@ bool hasKey(Persistent coll, key) {
  *      get(ps, 'c'); // throw ..
  *      get(ps, 'c', 17); // 17
  */
-dynamic get(Persistent coll, key, [notFound = _none]) {
+dynamic get(PersistentCollection coll, key, [notFound = _none]) {
   return (coll as dynamic).get(key, notFound);
 }
 
@@ -276,7 +299,7 @@ dynamic get(Persistent coll, key, [notFound = _none]) {
  *      getIn(pv, [0, 'b']); // throws
  *      getIn(pv, [0, 'b'], 47); // 47
  */
-getIn(Persistent coll, Iterable keys, [notFound = _none]) {
+getIn(PersistentCollection coll, Iterable keys, [notFound = _none]) {
   try {
     return _getIn(coll, keys, notFound);
   } catch (e){
@@ -284,7 +307,7 @@ getIn(Persistent coll, Iterable keys, [notFound = _none]) {
   }
 }
 
-_getIn(Persistent coll, Iterable keys, [notFound = _none]) {
+_getIn(PersistentCollection coll, Iterable keys, [notFound = _none]) {
   if (keys.length == 0) return coll;
   if (keys.length == 1) return get(coll, keys.first, notFound);
   return getIn(get(coll, keys.first, persist({})), keys.skip(1), notFound);
@@ -299,7 +322,7 @@ _getIn(Persistent coll, Iterable keys, [notFound = _none]) {
  *      find(pm, 'b'); // throw
  *      find(pm, 'b', 15); // == new Pair('b', 15)
  */
-Pair find(Persistent coll, key, [notFound = _none]) {
+Pair find(PersistentCollection coll, key, [notFound = _none]) {
   return new Pair(key, get(coll, key, notFound));
 }
 
@@ -315,7 +338,7 @@ Pair find(Persistent coll, key, [notFound = _none]) {
  *      assocIn(pm, ['a', 'c'], 17); // == persist({'a': {'b': 10, 'c': 17});
  *      assocIn(pm, ['a', 'c', 'd'], 17); // throws
  */
-dynamic assocIn(Persistent coll, Iterable keys, val) {
+dynamic assocIn(PersistentIndexedCollection coll, Iterable keys, val) {
   try{
     return _assocIn(coll, keys, val);
   } catch (e) {
@@ -323,7 +346,7 @@ dynamic assocIn(Persistent coll, Iterable keys, val) {
   }
 }
 
-dynamic _assocIn(Persistent coll, keys, val) {
+dynamic _assocIn(PersistentIndexedCollection coll, keys, val) {
   if (keys.length == 0) return val;
   if (keys.length == 1) {
     return assoc(coll, keys.first, persist(val));
@@ -346,7 +369,7 @@ dynamic _assocIn(Persistent coll, keys, val) {
  *      updateIn(pm, ['a', 'c'], inc) // throws
  *      updateIn(pm, ['a', 'c'], maybeInc) // == persist({'a': {'b': 10, 'c': 0}})
  */
-dynamic updateIn(Persistent coll, Iterable keys, Function f) {
+dynamic updateIn(PersistentIndexedCollection coll, Iterable keys, Function f) {
   try{
     return _updateIn(coll, keys, f);
   } catch (e) {
@@ -354,10 +377,10 @@ dynamic updateIn(Persistent coll, Iterable keys, Function f) {
   }
 }
 
-dynamic _updateIn(Persistent coll, Iterable keys, f) {
+dynamic _updateIn(PersistentIndexedCollection coll, Iterable keys, f) {
   if (keys.length == 0) return f(coll);
   if (keys.length == 1) {
-    return assoc(coll, keys.first, f(get(coll,keys.first)));
+    return assoc(coll, keys.first, hasKey(coll, keys.first)? f(get(coll,keys.first)) : f());
   } else {
     return assoc(coll, keys.first, _updateIn(get(coll, keys.first), keys.skip(1), f));
   }
@@ -415,7 +438,7 @@ PersistentVector subvec(PersistentVector vector, start, [end]) {
  *      PersistentSet ps = persist(new Set.from('a'));
  *      count(ps); // == 1
  */
-num count(Persistent coll) => (coll as Iterable).length;
+num count(PersistentCollection coll) => (coll as Iterable).length;
 
 /**
  *  Returns whether [coll] ([PersistentMap]/[PersistentSet]/[PersistentVector]) is empty.
@@ -430,7 +453,7 @@ num count(Persistent coll) => (coll as Iterable).length;
  *      PersistentSet ps = persist(new Set.from('a'));
  *      isEmpty(ps); // == false
  */
-bool isEmpty(Persistent coll) => (coll as Iterable).isEmpty;
+bool isEmpty(PersistentCollection coll) => (coll as Iterable).isEmpty;
 
 /**
  * Reverse order of iteration on [coll].
@@ -439,7 +462,7 @@ bool isEmpty(Persistent coll) => (coll as Iterable).isEmpty;
  *      PersistentVector pv = persist([1, 2, 3]);
  *      reverse(pv); // == iterable(1, 2, 3)
  */
-Iterable reverse(Persistent coll) => persist((coll as Iterable).toList().reversed);
+Iterable reverse(PersistentCollection coll) => persist((coll as Iterable).toList().reversed);
 
 /**
  * Get iterable from keys of [map] ([PersistentMap]).
@@ -468,7 +491,7 @@ Iterable values(PersistentMap map) => map.values;
  *      PersistentSet ps = persist(new Set.from(['a', 'b']));
  *      disj(ps, 'a'); // ==  persist(new Set.from(['b']));
  */
-PersistentSet disj(PersistentSet coll, elem) => coll.delete(elem, allowMissing: true);
+PersistentSet disj(PersistentSet coll, elem) => coll.delete(elem, missingOk: true);
 
 /**
  * Returns a new [PersistentSet] as union of [s1] and [s2].
@@ -564,16 +587,20 @@ Iterable filter(pred, Iterable coll) => coll.where(pred);
 
 Iterable remove(pred, Iterable coll) => filter((x) => !x, coll);
 
-/* TODO do we want it as it's in clojure???
-  [CLOJURE] f should be a function of 2 arguments. If val is not supplied,
-returns the result of applying f to the first 2 items in coll, then
-applying f to that result and the 3rd item, etc. If coll contains no
-items, f must accept no arguments as well, and reduce returns the
-result of calling f with no arguments.  If coll has only 1 item, it
-is returned and f is not called.  If val is supplied, returns the
-result of applying f to val and the first item in coll, then
-applying f to that result and the 2nd item, etc. If coll contains no
-items, returns val and f is not called. */
+//TODO maybe descrive better what it does
+/** reduce(f, collection)
+ * reduce(f, intialValue, collection)
+ *
+ * Reduce take function [f] of up to two arguments collection and optionaly
+ * initial value as second argument. Collection is provided as second argument or
+ * as third argument if initial value is provided
+ *
+ * If called on empty collection f() is returned.
+ * If called on collection with one item this item is returned.
+ * If called with at least two elements
+ *  - and initial value is provided then collection is foleded with initial value.
+ *  - with no initial value rest of collection is folded with first element and f.
+ */
 reduce(f, second, [third = _none]) {
   Iterable seq;
   var initialVal = _none;
@@ -585,7 +612,7 @@ reduce(f, second, [third = _none]) {
   }
   if (seq.isEmpty) return f();
   if (rest(seq).isEmpty) return first(seq);
-  return (initialVal == _none)? rest(seq).fold(first(seq), f) : seq.fold(second, f);
+  return (initialVal == _none)? rest(seq).fold(first(seq), f) : seq.fold(initialVal, f);
 }
 
 //reduce_kv do we want it ???

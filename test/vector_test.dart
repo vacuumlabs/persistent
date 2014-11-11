@@ -46,7 +46,7 @@ run() {
           expect(d1[i].isIdenticalTo(d2[i]), i == legNum ? isFalse : isTrue);
         }
       }
-      print(prettyPrint(testDumpVector(newV.getRootForTesting)));
+//      print(prettyPrint(testDumpVector(newV.getRootForTesting)));
 
       sharedLegsExcept(dV, dNewV, 1);
       sharedLegsExcept(dV[1], dNewV[1], 1);

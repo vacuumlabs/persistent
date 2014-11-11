@@ -11,6 +11,8 @@ import 'vector_test.dart' as vector_test;
 import 'randomized_map_test.dart' as randomized_map_test;
 import 'randomized_vector_test.dart' as randomized_vector_test;
 import 'functions_test.dart' as functions_test;
+import 'cursor_test.dart' as cursor_test;
+import 'reference_test.dart' as reference_test;
 
 main() {
   linked_list_test.run();
@@ -18,6 +20,8 @@ main() {
   set_test.run();
   vector_test.run();
   functions_test.run();
+  reference_test.run();
+  cursor_test.run();
   randomized_map_test.run();
   randomized_vector_test.run();
 }

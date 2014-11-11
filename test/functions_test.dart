@@ -90,6 +90,20 @@ run() {
       expect(dissoc(s, 'b', 'c'), eqPer({'a': 5}));
       expect(dissoc(s, 'b', 'd'), eqPer({'a': 5, 'c': 7}));
     });
+
+    test("- PersistentSet", (){
+      PersistentSet s = persist(new Set.from(['a', 'b', 'c', 'd']));
+      expect(dissoc(s, 'b', 'c'), eqPer(['a', 'd']));
+      expect(dissoc(s, 'b', 'd'), eqPer(['a', 'c']));
+    });
+
+    test("- PersistentVector", (){
+      PersistentVector s = persist(['a', 5, 'b', 6, 'c', 7]);
+      expect(dissoc(s, 0, 3), eqPer([5, 'b', 'c', 7]));
+      expect(dissoc(s, 3, 0), eqPer([5, 'b', 'c', 7]));
+      expect(dissoc(s, -1), equals(s));
+      expect(dissoc(s, 50), equals(s));
+    });
   });
 
   group("distinc", () {
@@ -229,6 +243,9 @@ run() {
       expect(updateIn(s, [1, 'a'], (x) => assoc(x, 'b', 6)), eqPer([1, {'a': {'b': 6}}, 3]));
       expect(updateIn(s, [1, 'a', 'b'], inc), eqPer([1, {'a': {'b':5}}, 3]));
       expect(() => updateIn(s, [1, 'a', 'c'], inc), throws);
+
+      maybeInc([x]) => (x == null)? 0 : ++x;
+      expect(updateIn(s, [1, 'a', 'c'], maybeInc), eqPer([1, {'a': {'b':4, 'c': 0}}, 3]));
       expect(() => updateIn(s, [1, 'c', 'c', 'c'], inc), throws);
     });
   });
