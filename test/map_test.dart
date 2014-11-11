@@ -45,23 +45,30 @@ run() {
     });
 
     test('More complicated insert', () {
+      // 1059%32 = 3
       PersistentMap pm = new PersistentMap.fromMap({0:0,1:1,2:2,32:32,35:35,3:3,1059:1059});
       DumpNodeMap psNode = new DumpNodeMap(pm.getRootForTesting);
       TransientMap tm = pm.asTransient();
        // No changes yet, should be identical
       expect(new DumpNodeMap(tm.getRootForTesting).isIdenticalTo(psNode), isTrue);
       tm.doAssoc(1315,1315);
+      // 1315 (dec) = 10100100011 (bin)
       DumpNodeMap tsNode = new DumpNodeMap(tm.getRootForTesting);
        // Transient root should be copied
       expect(tsNode.isIdenticalTo(psNode), isFalse);
       expect(tsNode[0].isIdenticalTo(psNode[0]), isTrue);
       expect(tsNode[1].isIdenticalTo(psNode[1]), isTrue);
       expect(tsNode[2].isIdenticalTo(psNode[2]), isTrue);
-      // Node on 3rd branch should be copied
+      // Node on 3rd branch should be copied, because 1315%32 = 3
       expect(tsNode[3].isIdenticalTo(psNode[3]), isFalse);
-      expect(tsNode[3][0].isIdenticalTo(psNode[3][0]), isTrue);
-      expect(tsNode[3][1].isIdenticalTo(psNode[3][1]), isTrue);
 
+      // References to nodes on 3rd branch in ps should be copied
+      for (int i = 0; i < psNode[3].numNodes; i++) {
+        expect(tsNode[3][i].isIdenticalTo(psNode[3][i]), isTrue);
+      }
+
+      // New node should be added to ts
+      expect(tsNode[3].numNodes, equals(psNode[3].numNodes + 1));
     });
   });
 

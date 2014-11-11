@@ -197,7 +197,7 @@ abstract class DumpNodeMap {
 
   factory DumpNodeMap(_ANodeBase node) => new _DumpNodeMapImpl(node);
 
-  operator[](int key);
+  DumpNodeMap operator[](int key);
 
   get numNodes;
 
