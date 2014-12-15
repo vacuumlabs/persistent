@@ -251,26 +251,7 @@ class _DumpNodeMapImpl implements DumpNodeMap {
   isIdenticalTo(_DumpNodeMapImpl other) => identical(node, other.node);
 }
 
-class DumpNum {
-
-  int _hash;
-  dynamic value;
-
-  DumpNum(this.value, [hash = null]) {
-    if (hash == null) _hash = value;
-    else _hash = hash;
-  }
-
-  @override
-  get hashCode => _hash;
-
-  set hashCode(int h) => _hash = hashCode;
-
-  toString() => "$value";
-
-}
-
-testDumpStructure(_ANodeBase _node) {
+testDumpMap(_ANodeBase _node) {
 
   dump(DumpNodeMap node) {
     if (node.isLeaf) return node.values;
@@ -299,49 +280,30 @@ testDumpVector(_VNode _node) {
 
 }
 
-abstract class DumpNodeVectorGeneral {
-
-  isIdenticalTo(DumpNodeVectorGeneral other);
-
-  get data;
-}
-
-abstract class DumpNodeVector implements DumpNodeVectorGeneral{
-
-  factory DumpNodeVector(_VNode node) => new _DumpNodeVectorImpl(node);
-
-  operator[](int key);
-
-  get numNodes;
-
-  isIdenticalTo(DumpNodeVector other);
-
-}
-
-class _DumpNodeVectorData implements DumpNodeVectorGeneral {
+class DumpNodeVectorData {
 
   var _data;
   get data => _data;
 
-  _DumpNodeVectorData(this._data);
+  DumpNodeVectorData(this._data);
 
-  isIdenticalTo(DumpNodeVectorGeneral other) => other is DumpNodeVector ? false : identical(data, other.data);
+  isIdenticalTo(DumpNodeVectorData other) => identical(data, other.data);
 
   toString() => "$_data";
 }
 
-class _DumpNodeVectorImpl implements DumpNodeVector {
+class DumpNodeVector {
 
   _VNode node;
   get data => node;
 
-  _DumpNodeVectorImpl(this.node);
+  DumpNodeVector(this.node);
 
-  operator[](int key) => node._array[key] is _VNode ? new _DumpNodeVectorImpl(node._array[key])
-      : new _DumpNodeVectorData(node._array[key]);
+  operator[](int key) => node._array[key] is _VNode ? new DumpNodeVector(node._array[key])
+      : new DumpNodeVectorData(node._array[key]);
 
   get numNodes => node._array.length;
 
-  isIdenticalTo(_DumpNodeVectorImpl other) => identical(this.node, other.node);
+  isIdenticalTo(DumpNodeVector other) => identical(this.node, other.node);
 
 }

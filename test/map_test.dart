@@ -67,6 +67,9 @@ run() {
         expect(tsNode[3][i].isIdenticalTo(psNode[3][i]), isTrue);
       }
 
+      // In case you would like too see the structure of the Persistent map with node pm
+//      print(testDumpMap(pm.getRootForTesting));
+
       // New node should be added to ts
       expect(tsNode[3].numNodes, equals(psNode[3].numNodes + 1));
     });
