@@ -60,6 +60,8 @@ abstract class _ReadMapImpl<K, V> extends IterableBase<Pair<K, V>> {
   }
 
   bool hasKey(key) => containsKey(key);
+
+  get getRootForTesting => _root;
 }
 
 class _PersistentMapImpl<K, V>
@@ -524,21 +526,16 @@ class _Leaf<K, V> extends _ANodeBase<K, V> {
       return res;
     }
 
-    if (depth > 5) {
-      assert(_hash == hash);
+    if (hash == _hash) {
       final LinkedList<Pair<K, V>> newPairs = insertPairs(keyValues, _pairs);
       return new _Leaf<K, V>.ensureOwner(this, owner, hash, newPairs, newsize);
     } else {
-      if (hash == _hash) {
-        final LinkedList<Pair<K, V>> newPairs = insertPairs(keyValues, _pairs);
-        return new _Leaf<K, V>.ensureOwner(this, owner, hash, newPairs, newsize);
-      } else {
-        int branch = (_hash >> (depth * 5)) & 0x1f;
-        List<_ANodeBase<K, V>> array = new List.filled(1, this);
-        return new _SubMap<K, V>.abc(owner, 1 << branch, array, length)
-            ._insertWith(owner, keyValues, size, combine, hash, depth);
-      }
+      int branch = (_hash >> (depth * 5)) & 0x1f;
+      List<_ANodeBase<K, V>> array = new List.filled(1, this);
+      return new _SubMap<K, V>.abc(owner, 1 << branch, array, length)
+          ._insertWith(owner, keyValues, size, combine, hash, depth);
     }
+
   }
 
   _NodeBase<K, V> _intersectWith(_Owner owner, LinkedList<Pair<K, V>> keyValues, int size,
@@ -1045,3 +1042,4 @@ _makeCopyIfNeeded(_Owner a, _Owner b, List c) {
     return c;
   else return c.sublist(0);
 }
+

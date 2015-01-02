@@ -17,6 +17,7 @@ eqPer(x) => equals(persist(x));
 
 run() {
   group("conj", (){
+
     test("- PersistentVector", (){
       PersistentVector s = persist([1, 2, 3]);
       expect(conj(s, 5), equals(s.push(5)));

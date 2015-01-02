@@ -46,6 +46,9 @@ abstract class ReadVector<E> implements Iterable<E> {
 
   /// Checks if it contains key [key].
   bool hasKey(int key);
+
+  get getRootForTesting;
+  get getTailForTesting;
 }
 
 

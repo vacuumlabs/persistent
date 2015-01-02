@@ -14,6 +14,67 @@ main() {
 }
 
 run() {
+
+  group('Structure test', () {
+    test('Simple structure', () {
+      PersistentMap pm = new PersistentMap();
+      pm = pm.assoc(0,0);
+      pm = pm.assoc(32,32);
+      pm = pm.assoc(2,2);
+      pm = pm.assoc(3,3);
+      pm = pm.assoc(35,35);
+      TransientMap tm = pm.asTransient();
+
+      tm.doAssoc(2,10);
+
+      DumpNodeMap nodeTm = new DumpNodeMap(tm.getRootForTesting);
+      DumpNodeMap nodePm = new DumpNodeMap(pm.getRootForTesting);
+
+      expect(nodeTm[0].isIdenticalTo(nodePm[0]), isTrue);
+      // 2 should be new
+      expect(nodeTm[2].isIdenticalTo(nodePm[2]), isFalse);
+      expect(nodeTm[3].isIdenticalTo(nodePm[3]), isTrue);
+
+      tm.doAssoc(2,15);
+      // Transient root shouldn't change now
+      expect(nodeTm.isIdenticalTo(new DumpNodeMap(tm.getRootForTesting)), isTrue);
+
+      // Persistent root should change and copy references
+      pm = pm.assoc(2,10);
+      expect(nodePm.isIdenticalTo(new DumpNodeMap(pm.getRootForTesting)), isFalse);
+    });
+
+    test('More complicated insert', () {
+      // 1059%32 = 3
+      PersistentMap pm = new PersistentMap.fromMap({0:0,1:1,2:2,32:32,35:35,3:3,1059:1059});
+      DumpNodeMap psNode = new DumpNodeMap(pm.getRootForTesting);
+      TransientMap tm = pm.asTransient();
+       // No changes yet, should be identical
+      expect(new DumpNodeMap(tm.getRootForTesting).isIdenticalTo(psNode), isTrue);
+      tm.doAssoc(1315,1315);
+      // 1315 (dec) = 10100100011 (bin)
+      DumpNodeMap tsNode = new DumpNodeMap(tm.getRootForTesting);
+       // Transient root should be copied
+      expect(tsNode.isIdenticalTo(psNode), isFalse);
+      expect(tsNode[0].isIdenticalTo(psNode[0]), isTrue);
+      expect(tsNode[1].isIdenticalTo(psNode[1]), isTrue);
+      expect(tsNode[2].isIdenticalTo(psNode[2]), isTrue);
+      // Node on 3rd branch should be copied, because 1315%32 = 3
+      expect(tsNode[3].isIdenticalTo(psNode[3]), isFalse);
+
+      // References to nodes on 3rd branch in ps should be copied
+      for (int i = 0; i < psNode[3].numNodes; i++) {
+        expect(tsNode[3][i].isIdenticalTo(psNode[3][i]), isTrue);
+      }
+
+      // In case you would like too see the structure of the Persistent map with node pm
+//      print(testDumpMap(pm.getRootForTesting));
+
+      // New node should be added to ts
+      expect(tsNode[3].numNodes, equals(psNode[3].numNodes + 1));
+    });
+  });
+
   group('Persistent map', () {
     test('assoc', () {
       PersistentMap pm = new PersistentMap();

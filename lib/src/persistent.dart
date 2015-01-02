@@ -192,3 +192,118 @@ PersistentCollection _deleteIn(s, Iterator path, {bool safe: false}) {
   }
   return throw 'It cant get here...';
 }
+
+abstract class DumpNodeMap {
+
+  factory DumpNodeMap(_ANodeBase node) => new _DumpNodeMapImpl(node);
+
+  DumpNodeMap operator[](int key);
+
+  get numNodes;
+
+  get values;
+
+  get isLeaf;
+
+  isIdenticalTo(DumpNodeMap other);
+
+}
+
+class NilNodeMap implements DumpNodeMap {
+
+  _throw() => throw new Exception("Non-existent node");
+
+  operator[](int key) => _throw();
+  get numNodes => _throw();
+  get values => _throw();
+  get isLeaf => _throw();
+  isIdenticalTo(DumpNodeMap other) => _throw();
+}
+
+class _DumpNodeMapImpl implements DumpNodeMap {
+  _ANodeBase node;
+
+  factory _DumpNodeMapImpl(_ANodeBase node) => new _DumpNodeMapImpl.fromNode(node);
+
+  _DumpNodeMapImpl.fromNode(_ANodeBase this.node);
+
+  get numNodes {
+    if ((node is _EmptyMap) || (node is _Leaf)) return 0;
+    assert(node is _SubMap);
+    return _SubMap._popcount((node as _SubMap)._bitmap);
+  }
+
+  DumpNodeMap operator [](int key) {
+    if ((key < 0) || (key > 31)) throw new RangeError.range(key, 0, 31);
+    if ((node as _SubMap)._bitmap & (1 << key) == 0) return new NilNodeMap();
+    int compressedIndex = _SubMap._popcount((node as _SubMap)._bitmap & ((1 << key) - 1));
+    return new DumpNodeMap((node as _SubMap)._array[compressedIndex]);
+  }
+
+  get values {
+    if ((node is _EmptyMap) || (node is _SubMap)) throw new Exception("${node.runtimeType} has no values");
+    assert(node is _Leaf);
+    return (node as _Leaf)._pairs.map((f) => f.second == null ? f.first : "<${f.first},${f.second}>");
+  }
+
+  get isLeaf => node is _Leaf;
+
+  isIdenticalTo(_DumpNodeMapImpl other) => identical(node, other.node);
+}
+
+testDumpMap(_ANodeBase _node) {
+
+  dump(DumpNodeMap node) {
+    if (node.isLeaf) return node.values;
+    Map structure = {};
+    for (int i = 0; i < 32; i++) {
+      if (node[i] is! NilNodeMap) structure[i] = dump(node[i]);
+    }
+    return structure;
+  }
+
+  return dump(new DumpNodeMap(_node));
+
+}
+
+testDumpVector(_VNode _node) {
+
+  dump(DumpNodeVector node) {
+    Map structure = {};
+    for (int i = 0; i < node.numNodes; i++) {
+      structure[i] = node[i] is DumpNodeVector ? dump(node[i]) : node[i];
+    }
+    return structure;
+  }
+
+  return dump(new DumpNodeVector(_node));
+
+}
+
+class DumpNodeVectorData {
+
+  var _data;
+  get data => _data;
+
+  DumpNodeVectorData(this._data);
+
+  isIdenticalTo(DumpNodeVectorData other) => identical(data, other.data);
+
+  toString() => "$_data";
+}
+
+class DumpNodeVector {
+
+  _VNode node;
+  get data => node;
+
+  DumpNodeVector(this.node);
+
+  operator[](int key) => node._array[key] is _VNode ? new DumpNodeVector(node._array[key])
+      : new DumpNodeVectorData(node._array[key]);
+
+  get numNodes => node._array.length;
+
+  isIdenticalTo(DumpNodeVector other) => identical(this.node, other.node);
+
+}

@@ -62,6 +62,9 @@ abstract class ReadMap<K, V> implements Iterable<Pair<K, V>> {
 
   /// The number of entries of `this`.
   int get length;
+
+  get getRootForTesting;
+
 }
 
 /**
@@ -313,4 +316,5 @@ abstract class TransientMap<K, V> implements ReadMap<K, V> {
   PersistentMap asPersistent();
 
   operator []=(key, value);
+
 }
